@@ -209,7 +209,22 @@ function restart(){if(monitoring){wsStop();bbo={};setTimeout(function(){wsStart(
 function doToggle(){if(monitoring){monitoring=false;wsStop();bbo={};cnt={};exStatus={};expanded=null;statusMsgs=[];fundingRates={};}else{bbo={};cnt={};exStatus={};expanded=null;statusMsgs=[];fundingRates={};monitoring=true;wsStart(watchPairs,mode,enabled);}markDirty();renderControls();}
 function setMode(m){mode=m;markDirty();restart();renderControls();}
 function setSort(k){sortKey=k;markDirty();renderControls();}
-function toggleEx(id){enabled[id]=!enabled[id];if(monitoring&&!enabled[id]&&sockets[id]){try{sockets[id].close();}catch(x){}delete sockets[id];}markDirty();renderControls();}
+function toggleEx(id){
+  enabled[id]=!enabled[id];
+  if(monitoring){
+    if(!enabled[id]){
+      if(sockets[id]){try{sockets[id].close();}catch(x){}delete sockets[id];}
+      if(reconTimers[id]){clearTimeout(reconTimers[id]);delete reconTimers[id];}
+      if(pingTimers[id]){clearInterval(pingTimers[id]);delete pingTimers[id];}
+      exStatus[id]="idle";
+      // ★ Remove stale BBO data so arb recalculates immediately
+      Object.keys(bbo).forEach(function(p){if(bbo[p]&&bbo[p][id])delete bbo[p][id];});
+    } else {
+      connEx(id);
+    }
+  }
+  markDirty();renderControls();
+}
 function toggleWatch(p){var i=watchPairs.indexOf(p);if(i>=0)watchPairs.splice(i,1);else watchPairs.push(p);markDirty();restart();renderControls();}
 
 /* ═══════════════════════════════════════════════════════════════════════════

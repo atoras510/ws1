@@ -57,15 +57,20 @@ table.mt{width:100%;border-collapse:collapse;margin-bottom:120px}
 .dd-wrap.open{max-height:800px}
 .dd-inner{background:#070710;border-bottom:2px solid #151520}
 .dd-hdr{display:flex;justify-content:space-between;align-items:center;padding:6px 14px;font-size:10px;color:#555;border-bottom:1px solid #0f0f18;flex-wrap:wrap;gap:6px}
-table.dt{width:100%;border-collapse:collapse}
-.dt th{padding:4px 8px;text-align:right;font-size:9px;font-weight:700;color:#333;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #0f0f18;background:#060610}
-.dt td{padding:5px 8px;text-align:right;font-size:11px;font-variant-numeric:tabular-nums}
-.dt-row{border-bottom:1px solid #0a0a12}
-.dt-row:hover{background:#0d0d18}
+.gx{width:100%;overflow-x:auto;padding-bottom:4px}
+table.gt{width:100%;border-collapse:collapse;min-width:600px}
+.gt th{padding:5px 6px;text-align:center;font-size:9px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid #0f0f18;background:#060610;white-space:nowrap}
+.gt td{padding:3px 6px;text-align:center;font-size:11px;font-variant-numeric:tabular-nums;border-bottom:1px solid #0a0a10;white-space:nowrap}
+.gt .rl{text-align:left;font-size:9px;font-weight:700;color:#333;letter-spacing:.5px;width:55px;padding-left:14px}
+.gt .ex-hdr{position:relative}
+.gt .ex-hdr .tag{position:absolute;top:-1px;right:2px}
+.ask-val{color:#ff6b6b}.bid-val{color:#4ecdc4}
+.ask-hi{color:#ff6b6b;font-weight:700;text-shadow:0 0 6px #ff6b6b44}
+.bid-hi{color:#00ff88;font-weight:700;text-shadow:0 0 6px #00ff8844}
+.fr-p{color:#4ecdc4}.fr-n{color:#ff6b6b}.fr-z{color:#333}
 .tag{font-size:7px;font-weight:800;padding:1px 4px;border-radius:2px;letter-spacing:.4px;margin-left:3px}
 .tag.buy{background:#ff6b6b22;color:#ff6b6b;border:1px solid #ff6b6b33}
 .tag.sell{background:#00ff8822;color:#00ff88;border:1px solid #00ff8833}
-.fr-p{color:#4ecdc4}.fr-n{color:#ff6b6b}.fr-z{color:#333}
 
 .foot{display:flex;justify-content:space-between;padding:4px 14px;background:#0a0a10;border-top:1px solid #151520;font-size:9px;color:#1a1a28;flex-shrink:0}
 
@@ -284,23 +289,36 @@ function buildTable(){
     // dropdown row
     h+='<tr><td colspan="4" style="padding:0;border:none"><div class="dd-wrap'+(isExp?' open':'')+'" id="dd-'+pair+'">';
     if(isExp){
+      var enabledIds=EX_IDS.filter(function(id){return enabled[id];});
       h+='<div class="dd-inner"><div class="dd-hdr"><span id="dh-'+pair+'"></span><span id="dn-'+pair+'"></span></div>';
-      h+='<table class="dt"><thead><tr><th style="text-align:left;width:110px">Exchange</th><th>Bid</th><th>BidSz</th><th>Ask</th><th>AskSz</th><th>Spread</th>';
-      if(isFut)h+='<th style="width:80px">FR</th><th style="width:65px">Next</th>';
-      h+='</tr></thead><tbody>';
-      EX_IDS.forEach(function(id){
-        if(!enabled[id])return;
-        h+='<tr class="dt-row" id="dr-'+pair+'-'+id+'">'
-          +'<td style="text-align:left" id="dx-'+pair+'-'+id+'"><span class="sdot" id="dd2-'+pair+'-'+id+'"></span> <span style="color:'+EX[id].c+';font-weight:600">'+EX[id].label+'</span><span id="dtg-'+pair+'-'+id+'"></span></td>'
-          +'<td id="db-'+pair+'-'+id+'">—</td>'
-          +'<td id="dbs-'+pair+'-'+id+'" style="color:#555">—</td>'
-          +'<td id="da-'+pair+'-'+id+'">—</td>'
-          +'<td id="das-'+pair+'-'+id+'" style="color:#555">—</td>'
-          +'<td id="ds-'+pair+'-'+id+'" style="color:#666">—</td>';
-        if(isFut)h+='<td id="dfr-'+pair+'-'+id+'">—</td><td id="dnf-'+pair+'-'+id+'" style="color:#444;font-size:10px">—</td>';
-        h+='</tr>';
+      h+='<div class="gx"><table class="gt"><thead><tr><th></th>';
+      enabledIds.forEach(function(id){
+        h+='<th class="ex-hdr" id="gh-'+pair+'-'+id+'"><span style="color:'+EX[id].c+'">'+EX[id].label+'</span><span id="gtg-'+pair+'-'+id+'"></span></th>';
       });
-      h+='</tbody></table></div>';
+      h+='</tr></thead><tbody>';
+      // Ask row
+      h+='<tr><td class="rl">ASK</td>';
+      enabledIds.forEach(function(id){h+='<td id="ga-'+pair+'-'+id+'" class="ask-val">—</td>';});
+      h+='</tr>';
+      // Bid row
+      h+='<tr><td class="rl">BID</td>';
+      enabledIds.forEach(function(id){h+='<td id="gb-'+pair+'-'+id+'" class="bid-val">—</td>';});
+      h+='</tr>';
+      // Spread row
+      h+='<tr><td class="rl" style="color:#222">SPREAD</td>';
+      enabledIds.forEach(function(id){h+='<td id="gs-'+pair+'-'+id+'" style="color:#444;font-size:10px">—</td>';});
+      h+='</tr>';
+      if(isFut){
+        // FR row
+        h+='<tr><td class="rl" style="color:#2a5a4a">FR</td>';
+        enabledIds.forEach(function(id){h+='<td id="gfr-'+pair+'-'+id+'" class="fr-z" style="font-size:10px">—</td>';});
+        h+='</tr>';
+        // Next FR row
+        h+='<tr><td class="rl" style="color:#222">NEXT</td>';
+        enabledIds.forEach(function(id){h+='<td id="gnf-'+pair+'-'+id+'" style="color:#333;font-size:9px">—</td>';});
+        h+='</tr>';
+      }
+      h+='</tbody></table></div></div>';
     }
     h+='</div></td></tr>';
   });
@@ -392,7 +410,7 @@ function updateValues(){
       chipEl.className="chip"+(on?" on":"")+(profit?" hot":"");
     }
 
-    // expanded detail values
+    // expanded detail values (grid layout)
     if(isExp){
       var pb=bbo[pair]||{}, pFr=fundingRates[pair]||{};
       var activeN=EX_IDS.filter(function(id){return enabled[id]&&pb[id];}).length;
@@ -413,57 +431,52 @@ function updateValues(){
         var d=pb[id], isBB=arb&&arb.bB.ex===id, isBA=arb&&arb.bA.ex===id;
         var pp=d?prec(d.bid):2;
 
-        // dot
-        var dd2=document.getElementById("dd2-"+pair+"-"+id);
-        if(dd2)dd2.style.background=d?"#00ff88":"#333";
-
-        // tags
-        var dtg=document.getElementById("dtg-"+pair+"-"+id);
-        if(dtg){
+        // header tags (BUY/SELL)
+        var gtg=document.getElementById("gtg-"+pair+"-"+id);
+        if(gtg){
           var tg="";
-          if(isBA)tg+='<span class="tag buy">BUY</span>';
-          if(isBB)tg+='<span class="tag sell">SELL</span>';
-          dtg.innerHTML=tg;
+          if(isBA)tg='<span class="tag buy">BUY</span>';
+          if(isBB)tg='<span class="tag sell">SELL</span>';
+          gtg.innerHTML=tg;
+        }
+
+        // ask
+        var gaEl=document.getElementById("ga-"+pair+"-"+id);
+        if(gaEl){
+          gaEl.textContent=d?d.ask.toFixed(pp):"—";
+          gaEl.className=isBA?"ask-hi":"ask-val";
         }
 
         // bid
-        var dbEl=document.getElementById("db-"+pair+"-"+id);
-        if(dbEl){dbEl.textContent=d?d.bid.toFixed(pp):"—";dbEl.style.color=isBB?"#00ff88":"#bbb";dbEl.style.fontWeight=isBB?"700":"400";}
-
-        // bid size
-        var dbsEl=document.getElementById("dbs-"+pair+"-"+id);
-        if(dbsEl)dbsEl.textContent=d?fz(d.bidSz):"—";
-
-        // ask
-        var daEl=document.getElementById("da-"+pair+"-"+id);
-        if(daEl){daEl.textContent=d?d.ask.toFixed(pp):"—";daEl.style.color=isBA?"#ff6b6b":"#bbb";daEl.style.fontWeight=isBA?"700":"400";}
-
-        // ask size
-        var dasEl=document.getElementById("das-"+pair+"-"+id);
-        if(dasEl)dasEl.textContent=d?fz(d.askSz):"—";
+        var gbEl=document.getElementById("gb-"+pair+"-"+id);
+        if(gbEl){
+          gbEl.textContent=d?d.bid.toFixed(pp):"—";
+          gbEl.className=isBB?"bid-hi":"bid-val";
+        }
 
         // spread
-        var dsEl=document.getElementById("ds-"+pair+"-"+id);
-        if(dsEl)dsEl.textContent=d?((d.ask-d.bid)/d.ask*100).toFixed(4)+"%":"—";
+        var gsEl=document.getElementById("gs-"+pair+"-"+id);
+        if(gsEl){gsEl.textContent=d?((d.ask-d.bid)/d.ask*100).toFixed(4)+"%":"—";}
 
         // FR
         if(isFut){
           var exFr=pFr[id];
-          var dfrEl=document.getElementById("dfr-"+pair+"-"+id);
-          if(dfrEl){
+          var gfrEl=document.getElementById("gfr-"+pair+"-"+id);
+          if(gfrEl){
             if(exFr){
               var r=exFr.rate;
-              dfrEl.className=r>0.01?"fr-p":r<-0.01?"fr-n":"fr-z";
-              dfrEl.textContent=(r>0?"+":"")+r.toFixed(4)+"%";
-            } else { dfrEl.className="fr-z"; dfrEl.textContent="—"; }
+              gfrEl.className=r>0.01?"fr-p":r<-0.01?"fr-n":"fr-z";
+              gfrEl.style.fontSize="10px";
+              gfrEl.textContent=(r>0?"+":"")+r.toFixed(4)+"%";
+            } else { gfrEl.className="fr-z"; gfrEl.textContent="—"; }
           }
-          var dnfEl=document.getElementById("dnf-"+pair+"-"+id);
-          if(dnfEl){
+          var gnfEl=document.getElementById("gnf-"+pair+"-"+id);
+          if(gnfEl){
             if(exFr&&exFr.nextTime){
               var diff=exFr.nextTime-Date.now();
-              if(diff<=0)dnfEl.textContent="soon";
-              else{var hh=Math.floor(diff/3600000),mm=Math.floor((diff%3600000)/60000);dnfEl.textContent=hh+"h"+String(mm).padStart(2,"0")+"m";}
-            } else { dnfEl.textContent="—"; }
+              if(diff<=0)gnfEl.textContent="soon";
+              else{var hh=Math.floor(diff/3600000),mm=Math.floor((diff%3600000)/60000);gnfEl.textContent=hh+"h"+String(mm).padStart(2,"0")+"m";}
+            } else { gnfEl.textContent="—"; }
           }
         }
       });

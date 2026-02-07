@@ -296,7 +296,11 @@ function buildTable(){
 }
 
 function getSorted(){
-  var arr=watchPairs.map(function(p){return{pair:p,arb:bbo[p]?calcArb(bbo[p]):null,exN:Object.keys(bbo[p]||{}).length};});
+  var arr=watchPairs.map(function(p){
+    var pb=bbo[p];
+    if(pb){var filtered={};Object.keys(pb).forEach(function(ex){if(enabled[ex])filtered[ex]=pb[ex];});return{pair:p,arb:calcArb(filtered),exN:Object.keys(filtered).length};}
+    return{pair:p,arb:null,exN:0};
+  });
   if(sortKey==="spread")arr.sort(function(a,b){return(b.arb?b.arb.rawPct:-999)-(a.arb?a.arb.rawPct:-999);});
   else if(sortKey==="name")arr.sort(function(a,b){return a.pair.localeCompare(b.pair);});
   else arr.sort(function(a,b){return b.exN-a.exN;});

@@ -40,7 +40,7 @@ body{background:#08080c;color:#ccc;font-family:'Consolas','Monaco','Courier New'
 .smsg.ok{color:#00ff88}.smsg.err{color:#ff4444}.smsg.warn{color:#e8e800}.smsg.info{color:#7ec8e3}
 
 .table-wrap{flex:1;overflow-y:auto;min-height:0}
-table.mt{width:100%;border-collapse:collapse}
+table.mt{width:100%;border-collapse:collapse;margin-bottom:120px}
 .mt thead th{padding:7px 12px;font-size:10px;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.7px;border-bottom:1px solid #151520;background:#0a0a10;position:sticky;top:0;z-index:2}
 .mrow{cursor:pointer;border-bottom:1px solid #0c0c14}
 .mrow:hover{background:#0e0e18}
@@ -54,7 +54,7 @@ table.mt{width:100%;border-collapse:collapse}
 .arrow.open{transform:rotate(180deg);color:#7ec8e3}
 
 .dd-wrap{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
-.dd-wrap.open{max-height:500px}
+.dd-wrap.open{max-height:800px}
 .dd-inner{background:#070710;border-bottom:2px solid #151520}
 .dd-hdr{display:flex;justify-content:space-between;align-items:center;padding:6px 14px;font-size:10px;color:#555;border-bottom:1px solid #0f0f18;flex-wrap:wrap;gap:6px}
 table.dt{width:100%;border-collapse:collapse}
@@ -292,7 +292,7 @@ function buildTable(){
   tbody.innerHTML=h;
 
   // set max-height for open dropdowns
-  if(expanded){var ddEl=document.getElementById("dd-"+expanded);if(ddEl)ddEl.style.maxHeight=ddEl.scrollHeight+"px";}
+  if(expanded){var ddEl=document.getElementById("dd-"+expanded);if(ddEl)ddEl.style.maxHeight=ddEl.scrollHeight+20+"px";}
 }
 
 function getSorted(){
